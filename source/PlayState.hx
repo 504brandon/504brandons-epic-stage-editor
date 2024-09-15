@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.ui.FlxUINumericStepper;
 import flixel.FlxCamera;
 import openfl.display.BitmapData;
 import sys.io.File;
@@ -18,8 +19,15 @@ class PlayState extends FlxState
 	var dad:FlxSprite;
 	var boyfriend:FlxSprite;
 
+	// cameras
 	var stageCam:FlxCamera;
 	var charCam:FlxCamera;
+	var uiCam:FlxCamera;
+
+	// ui
+	var selectedSpriteX:FlxUINumericStepper;
+	var selectedSpriteY:FlxUINumericStepper;
+	var selectedSpriteAlpha:FlxUINumericStepper;
 
 	override public function create()
 	{
@@ -45,7 +53,7 @@ class PlayState extends FlxState
 			var normalizedPath:String = path.replace("\\", "/");
 			var filename:String = normalizedPath.substring(normalizedPath.lastIndexOf("/") + 1);
 
-			spriteHXCode.push('	var sprite$spriteIndex = new FlxSprite().loadGraphic(Paths.image("${filename.replace(".png", "")}"));\n	add(sprite$spriteIndex);');
+			spriteHXCode.push('	var sprite$spriteIndex = new FlxSprite().loadGraphic(Paths.image("${filename.replace(".png", "")}"));');
 		});
 
 		charCam = new FlxCamera();
@@ -65,6 +73,22 @@ class PlayState extends FlxState
 		boyfriend.animation.play("idle");
 		boyfriend.cameras = [charCam];
 		add(boyfriend);
+
+		uiCam = new FlxCamera();
+		uiCam.bgColor.alpha = 0;
+		FlxG.cameras.add(uiCam);
+
+		selectedSpriteX = new FlxUINumericStepper(0, 0, 5, 0, -99999, 99999);
+		selectedSpriteX.cameras = [uiCam];
+		add(selectedSpriteX);
+
+		selectedSpriteY = new FlxUINumericStepper(0, 15, 5, 0, -99999, 99999);
+		selectedSpriteY.cameras = [uiCam];
+		add(selectedSpriteY);
+
+		selectedSpriteAlpha = new FlxUINumericStepper(0, 30, 0.1, 1, 0, 1, 2);
+		selectedSpriteAlpha.cameras = [uiCam];
+		add(selectedSpriteAlpha);
 	}
 
 	override public function update(elapsed:Float)
@@ -82,17 +106,42 @@ class PlayState extends FlxState
 		if (spriteSelected != null)
 		{
 			if (FlxG.keys.justPressed.W)
+			{
 				spriteSelected.y -= 15;
+				selectedSpriteY.value = spriteSelected.y;
+			}
+
 			if (FlxG.keys.justPressed.S)
+			{
 				spriteSelected.y += 15;
+				selectedSpriteY.value = spriteSelected.y;
+			}
+
 			if (FlxG.keys.justPressed.A)
+			{
 				spriteSelected.x -= 15;
+				selectedSpriteX.value = spriteSelected.x;
+			}
+
 			if (FlxG.keys.justPressed.D)
+			{
 				spriteSelected.x += 15;
+				selectedSpriteX.value = spriteSelected.x;
+			}
+
 			if (FlxG.mouse.overlaps(spriteSelected, stageCam) && FlxG.mouse.pressed)
 			{
 				spriteSelected.setPosition(FlxG.mouse.x - spriteSelected.width / 2, FlxG.mouse.y - spriteSelected.height / 2);
+				selectedSpriteX.value = spriteSelected.x;
+				selectedSpriteY.value = spriteSelected.y;
 			}
+
+			if (selectedSpriteX.value != spriteSelected.x)
+				spriteSelected.x = selectedSpriteX.value;
+			if (selectedSpriteY.value != spriteSelected.y)
+				spriteSelected.y = selectedSpriteY.value;
+			if (selectedSpriteAlpha.value != spriteSelected.alpha)
+				spriteSelected.alpha = selectedSpriteAlpha.value;
 		}
 
 		if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
@@ -102,7 +151,9 @@ class PlayState extends FlxState
 			for (i => hxcode in spriteHXCode)
 			{
 				heyheyhey += if (i > 0) "\n\n" + hxcode + "\n" else "\n" + hxcode;
+				heyheyhey += '\n	sprite${i}.alpha = ${stageSprites[i].alpha};';
 				heyheyhey += '\n	sprite${i}.setPosition(${stageSprites[i].x}, ${stageSprites[i].y});';
+				heyheyhey += '\n	add(sprite${i});';
 			}
 
 			if (FlxG.keys.pressed.P)
