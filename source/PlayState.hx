@@ -89,7 +89,8 @@ class PlayState extends FlxState
 				spriteSelected.x -= 15;
 			if (FlxG.keys.justPressed.D)
 				spriteSelected.x += 15;
-			if (FlxG.mouse.overlaps(spriteSelected, stageCam) && FlxG.mouse.pressed) {
+			if (FlxG.mouse.overlaps(spriteSelected, stageCam) && FlxG.mouse.pressed)
+			{
 				spriteSelected.setPosition(FlxG.mouse.x - spriteSelected.width / 2, FlxG.mouse.y - spriteSelected.height / 2);
 			}
 		}
@@ -114,12 +115,14 @@ class PlayState extends FlxState
 					"opponent": [100, 100],
 				};
 
-				sys.io.File.saveBytes('./stage.hx', haxe.io.Bytes.ofString('//made with 504brandons epic stage editor\nfunction onCreate(){$heyheyhey\n}'));
+				sys.io.File.saveBytes('./stage.hx',
+					haxe.io.Bytes.ofString('//made with 504brandons epic stage editor https://github.com/504brandon/504brandons-epic-stage-editor\nfunction onCreate(){$heyheyhey\n}'));
 				sys.io.File.saveBytes('./stage.json', haxe.io.Bytes.ofString(haxe.Json.stringify(psychJsonExport)));
 			}
 			else
 			{
-				sys.io.File.saveBytes('./stage.hx', haxe.io.Bytes.ofString('//made with 504brandons epic stage editor\nfunction create(){$heyheyhey\n}'));
+				sys.io.File.saveBytes('./stage.hx',
+					haxe.io.Bytes.ofString('//made with 504brandons epic stage editor https://github.com/504brandon/504brandons-epic-stage-editor\nfunction create(){$heyheyhey\n}'));
 			}
 		}
 
